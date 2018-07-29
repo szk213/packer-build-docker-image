@@ -1,0 +1,50 @@
+---
+- name: Provision Python
+  hosts: all
+  gather_facts: no
+  tasks:
+    - name: Bootstrap python
+      raw: test -e /usr/bin/python || (apt-get -y update && apt-get install -y python-minimal)
+
+- name: Install JDK
+  hosts: all
+  tasks:
+  - name: Download JDK
+    get_url:
+      url: http://download.oracle.com/otn-pub/java/jdk/8u131-b11/d54c1d3a095b4ff2b6607d096fa80163/jdk-8u131-linux-x64.rpm
+      dest: /tmp
+      headers: "Cookie:' gpw_e24=http%3A%2F%2Fwww.oracle.com%2F; oraclelicense=accept-securebackup-cookie'"
+      validate_certs: no
+      checksum: "sha256: 3d1e8cc66f4fd77acef6093329d5dd95bd06e4a03926c52df794f311a0c093f8"
+  - name: Install JDK
+    yum:
+      name: /tmp/jdk-8u131-linux-x64.rpm
+      state: present
+    become: yes
+  - name: Delete RPM
+    file:
+      state: absent
+      path: /tmp/jdk-8u131-linux-x64.rpm
+
+- name: Install Tomcat
+  hosts: all
+  tasks:
+  - name: Download Tomcat
+    get_url:
+      url: http://ftp.riken.jp/net/apache/tomcat/tomcat-8/v8.5.32/bin/apache-tomcat-8.5.32.tar.gz
+      dest: /tmp/apache-tomcat.tar.gz
+      validate_certs: no
+
+  - name: Install Tomcat
+    unarchive:
+      src: /tmp/apache-tomcat.tar.gz
+      dest:  /opt
+      remote_src: yes
+    become: yes
+
+  - name: Delete TAR
+    file:
+      state: absent
+      path: /tmp/apache-tomcat.tar.gz
+    become: yes
+

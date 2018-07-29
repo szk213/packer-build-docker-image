@@ -1,7 +1,14 @@
 {
   "builders": [{
     "type": "docker",
-    "image": "ubuntu",
+    "image": "centos",
     "commit": true
-  }]
+  }],
+  "provisioners": [
+    {
+      "type": "ansible",
+      "user": "root",
+      "playbook_file": "ansible/playbook.yml"
+    }
+  ]
 }
